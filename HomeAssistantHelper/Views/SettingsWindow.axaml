@@ -1,0 +1,60 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HomeAssistantHelper.Views.SettingsWindow"
+        Title="Settings — Home Assistant Helper"
+        Width="480"
+        Height="360"
+        WindowStartupLocation="CenterScreen"
+        CanResize="False">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0"
+                    Margin="0,0,0,12">
+            <TextBlock Text="MCP Server URL"
+                       FontWeight="SemiBold"
+                       Margin="0,0,0,4"/>
+            <TextBox Text="{Binding McpServerUrl, Mode=TwoWay}"
+                     Padding="6,4"
+                     Watermark="e.g. http://ha-mcp.local:8123"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2"
+                    Margin="0,0,0,12">
+            <TextBlock Text="Copilot Model"
+                       FontWeight="SemiBold"
+                       Margin="0,0,0,4"/>
+            <AutoCompleteBox ItemsSource="{Binding AvailableModels}"
+                             Text="{Binding CopilotModel, Mode=TwoWay}"
+                             FilterMode="Contains"
+                             Padding="6,4"/>
+        </StackPanel>
+
+        <TextBlock Grid.Row="3"
+                   Text="{Binding StatusMessage}"
+                   Foreground="Green"
+                   FontSize="12"
+                   VerticalAlignment="Bottom"
+                   Margin="0,0,0,8"/>
+
+        <StackPanel Grid.Row="4"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button Content="Cancel"
+                    Command="{Binding CancelCommand}"
+                    Padding="16,6"
+                    Margin="0,0,8,0"
+                    Cursor="Hand"/>
+            <Button Content="Save"
+                    Command="{Binding SaveCommand}"
+                    Padding="16,6"
+                    Cursor="Hand"/>
+        </StackPanel>
+    </Grid>
+</Window>

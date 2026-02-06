@@ -1,0 +1,140 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="using:HomeAssistantHelper.Converters"
+             xmlns:mdav="using:Markdown.Avalonia"
+             x:Class="HomeAssistantHelper.Views.ChatPanel">
+    <UserControl.Resources>
+        <converters:RoleToAlignmentConverter x:Key="RoleToAlignment"/>
+        <converters:RoleToBackgroundConverter x:Key="RoleToBackground"/>
+        <converters:RoleToForegroundConverter x:Key="RoleToForeground"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Session Header -->
+        <Grid Grid.Row="0" Background="{DynamicResource SystemControlBackgroundListLowBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <ComboBox Grid.Column="0"
+                      ItemsSource="{Binding Sessions}"
+                      SelectedItem="{Binding SelectedSession}"
+                      Margin="8,6"
+                      HorizontalAlignment="Stretch">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Title}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+
+            <Button Grid.Column="1"
+                    Content="＋ New"
+                    Command="{Binding NewSessionCommand}"
+                    Margin="4,6"
+                    Padding="8,4"
+                    Cursor="Hand"/>
+
+            <Button Grid.Column="2"
+                    Content="🗑"
+                    Command="{Binding DeleteSessionCommand}"
+                    CommandParameter="{Binding SelectedSession}"
+                    Margin="4,6,8,6"
+                    Padding="6,4"
+                    Cursor="Hand"
+                    ToolTip.Tip="Delete session"/>
+        </Grid>
+
+        <!-- Messages List -->
+        <ScrollViewer Grid.Row="1"
+                      x:Name="MessagesScrollViewer"
+                      VerticalScrollBarVisibility="Auto"
+                      Background="White"
+                      Padding="8">
+            <ItemsControl ItemsSource="{Binding Messages}" x:Name="MessagesList">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel HorizontalAlignment="{Binding Role, Converter={StaticResource RoleToAlignment}}"
+                                    MaxWidth="500" Margin="4,4">
+                            <!-- Collapsible tool calls panel -->
+                            <Expander IsExpanded="False"
+                                      Header="{Binding ToolCallSummary}"
+                                      IsVisible="{Binding HasToolCalls}"
+                                      Margin="0,0,0,2"
+                                      FontSize="12">
+                                <ItemsControl ItemsSource="{Binding ToolCalls}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Margin="8,1">
+                                                <TextBlock Text="{Binding Name}" FontSize="11" Foreground="Gray"/>
+                                                <TextBlock Text=" — " FontSize="11" Foreground="Gray"/>
+                                                <TextBlock Text="{Binding Status}" FontSize="11" Foreground="Gray"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Expander>
+
+                            <!-- Message bubble -->
+                            <Border Background="{Binding Role, Converter={StaticResource RoleToBackground}}"
+                                    CornerRadius="8"
+                                    Padding="12,8"
+                                    TextElement.Foreground="{Binding Role, Converter={StaticResource RoleToForeground}}"
+                                    TextElement.FontSize="13">
+                                <mdav:MarkdownScrollViewer Markdown="{Binding Content}"/>
+                            </Border>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Processing indicator -->
+        <Border Grid.Row="2"
+                Padding="8,4"
+                IsVisible="{Binding IsProcessing}">
+            <TextBlock Text="⏳ Thinking..."
+                       Foreground="Gray"
+                       FontSize="12"
+                       FontStyle="Italic"/>
+        </Border>
+
+        <!-- Input Area -->
+        <Grid Grid.Row="3" Background="{DynamicResource SystemControlBackgroundListLowBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBox Grid.Column="0"
+                     x:Name="InputBox"
+                     Text="{Binding InputText, Mode=TwoWay}"
+                     Margin="8,8"
+                     Padding="8,6"
+                     FontSize="13"
+                     AcceptsReturn="False"
+                     VerticalContentAlignment="Center">
+                <TextBox.KeyBindings>
+                    <KeyBinding Gesture="Enter" Command="{Binding SendMessageCommand}"/>
+                </TextBox.KeyBindings>
+            </TextBox>
+
+            <Button Grid.Column="1"
+                    Content="Send"
+                    Command="{Binding SendMessageCommand}"
+                    Margin="0,8,8,8"
+                    Padding="16,6"
+                    FontWeight="SemiBold"
+                    Cursor="Hand"/>
+        </Grid>
+    </Grid>
+</UserControl>
