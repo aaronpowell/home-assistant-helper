@@ -1,12 +1,13 @@
 using HomeAssistantHelper.Data;
 using HomeAssistantHelper.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace HomeAssistantHelper.Services;
 
-public class SettingsService(IDbContextFactory<AppDbContext> dbFactory)
+public class SettingsService(IDbContextFactory<AppDbContext> dbFactory, IConfiguration configuration)
 {
-    private const string EncryptionScope = "HomeAssistantHelper";
+    private const string ConfigSection = "AppSettings";
 
     public async Task<AppSettings> LoadAsync()
     {
@@ -20,6 +21,15 @@ public class SettingsService(IDbContextFactory<AppDbContext> dbFactory)
             settings.McpServerUrl = url;
         if (dict.TryGetValue("CopilotModel", out var model))
             settings.CopilotModel = model;
+
+        // Environment variables override DB values (e.g. AppSettings__McpServerUrl)
+        var envUrl = configuration[$"{ConfigSection}:McpServerUrl"];
+        if (!string.IsNullOrEmpty(envUrl))
+            settings.McpServerUrl = envUrl;
+
+        var envModel = configuration[$"{ConfigSection}:CopilotModel"];
+        if (!string.IsNullOrEmpty(envModel))
+            settings.CopilotModel = envModel;
 
         return settings;
     }

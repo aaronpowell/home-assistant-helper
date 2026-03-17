@@ -3,10 +3,12 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using HomeAssistantHelper.Data;
+using HomeAssistantHelper.Models;
 using HomeAssistantHelper.Services;
 using HomeAssistantHelper.ViewModels;
 using HomeAssistantHelper.Views;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HomeAssistantHelper;
@@ -28,6 +30,12 @@ public partial class App : Application
 
         // Setup DI
         var services = new ServiceCollection();
+
+        // Configuration: env vars using .NET config scheme (e.g. AppSettings__McpServerUrl)
+        var configuration = new ConfigurationBuilder()
+            .AddEnvironmentVariables()
+            .Build();
+        services.AddSingleton<IConfiguration>(configuration);
 
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         var dbFolder = Path.Combine(appData, "HomeAssistantHelper");
